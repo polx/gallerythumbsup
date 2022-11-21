@@ -1,0 +1,42 @@
+{{velocity}}
+#set($engine = $xwiki.parseGroovyFromPage("Macros.GalleryThumbsupEngine"))
+$engine.init($xwiki,$context,$doc)
+#if($request.startProcess=="1")
+  $engine.startProduction()
+  $response.sendRedirect($doc.name)
+#end
+#if($request.stopProcess=="1")
+  $engine.stopThumbsUp()
+  $response.sendRedirect($doc.name)
+#end
+#if($engine.needsActualization())
+  La galerie doit être produite à nouveau:
+  #set($status=$engine.getProcessStatus())
+
+  {{html}} <!-- Status is $status --> {{/html}}
+
+  #if($status=="EXPORTING")
+    {{html}}Les photos sont exportées: <a href="${doc.name}?stopProcess=1">stop</a>
+  .<script> setTimeout(function(){window.location.reload();},1000) </script>{{/html}}
+  #elseif($status=="RUNNING")
+    {{html}}La galerie est en cours de production: <a href="${doc.name}?stopProcess=1">stop</a>
+    .<script> setTimeout(function(){window.location.reload();},1000) </script>
+    {{/html}}
+  #elseif ($status=="ERROR")
+  La production de la galerie a échoué. Merci de contacter le [[webmestre>>XWiki.SendEmailPaul]].
+  #elseif ($status=="IDLE")
+  {{html}}<a href="${doc.name}?startProcess=1">Démarrer la galerie!</a>{{/html}}
+
+  #else
+  Can't understand status $status .
+  #end
+#else
+{{html}}<!-- here comes the gallery iframe to ${engine.getIFrameURL()} -->
+<iframe src='${engine.getIFrameURL()}' frameborder='0' style='width:80vw; height:80vw'>I need frames</iframe>
+{{/html}}
+#end
+
+#if($request.debug=="1")
+  $engine.dumpDebug()
+#end
+{{/velocity}}
