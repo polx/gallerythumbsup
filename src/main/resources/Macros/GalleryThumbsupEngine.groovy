@@ -93,6 +93,7 @@ public class GalleryThumbsupEngine {
         for(def attachment in doc.getAttachmentList()) {
             attachmentNames.add(attachment.filename)
             File targetFile= new File(srcDir, attachment.filename)
+            if(attachment.filename.toUpperCase().endsWith(".HEIC")) continue
             if(!targetFile.isFile() || targetFile.lastModified() -500 < attachment.date.time) {
                 debug("Saving attachment " + attachment.filename + " to " + targetFile)
                 InputStream input = attachment.getContentInputStream()
